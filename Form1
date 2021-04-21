@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+using Monitoring_App_Measurement_Data_v2;
+
+namespace Monitoring_App_Measurement_Data_v2
+{
+    public partial class Form1 : Form
+    {
+        List<MeasurementData> measurementList = new List<MeasurementData>();
+        MeasurementData measurementData = new MeasurementData();
+
+
+        public Form1()
+        {
+            InitializeComponent();
+            timer1.Interval = 5000;
+            timer1.Start(); 
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            measurementList = measurementData.GetMeasurementData();
+            FillDataGrid();
+            FillChart();
+            FillStatisticsField();
+
+        }
+        private void FillDataGrid()
+        {
+            gridMeasurmentData.DataSource = measurementList;
+
+        }
+        private void FillChart()
+        {
+            chartMeasurementData.Series.Clear();
+            chartMeasurementData.Series.Add("MeasurementData");
+            chartMeasurementData.Series["MeasurementData"].ChartType = SeriesChartType.Line;
+
+            ChartArea area = chartMeasurementData.ChartAreas[0];
+            area.AxisY.Minimum = 20;
+            area.AxisY.Maximum = 30;
+
+            foreach (MeasurementData data in measurementList)
+            {
+                chartMeasurementData.Series["MeasurementData"].Points.AddXY(data.MeasurementId, data.MeasurementValue);
+            }
+
+
+        }
+        private void FillStatisticsField()
+        {
+            StatisticsData statisticsData = new StatisticsData();
+            statisticsData = statisticsData.GetStatisticsData();
+
+            txtAverageData.Text = statisticsData.AverageData.ToString();
+            txtMinData.Text = statisticsData.MinData.ToString();
+            txtMaxData.Text = statisticsData.MaxData.ToString();
+        }
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            measurementList = measurementData.GetMeasurementData();
+            FillDataGrid();
+            FillChart();
+            FillStatisticsField();
+
+        }
+    }
+}
