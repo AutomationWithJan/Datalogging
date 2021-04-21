@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Configuration;
+
+namespace Monitoring_App_Measurement_Data_v2
+{
+    public class MeasurementData
+    {
+        public int MeasurementId { get; set; }
+        public DateTime MeasurementTimeStamp { get; set; }
+        public double MeasurementValue { get; set; }
+        public double FahrenheitValue { get; set; } 
+
+        public List<MeasurementData> GetMeasurementData()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+            List<MeasurementData> measurementList = new List<MeasurementData>();
+
+            SqlConnection con = new SqlConnection(connectionString);
+            string selectSQL = "select MeasurementId, MeasurementTimeStamp, MeasurementValue, FahrenheitValue from GetMeasurementData where SensorName = 'TC01-1'";
+            
+            con.Open();
+            SqlCommand cmd = new SqlCommand(selectSQL, con);
+            SqlDataReader dr = cmd.ExecuteReader();
+            if (dr!=null)
+            {
+                while (dr.Read())
+                {
+                    MeasurementData measurement = new MeasurementData();
+                    measurement.MeasurementId = Convert.ToInt32(dr["MeasurementId"]);
+                    measurement.MeasurementTimeStamp = Convert.ToDateTime(dr["MeasurementTimeStamp"]);
+                    measurement.MeasurementValue = Convert.ToDouble(dr["MeasurementValue"]);
+                    measurement.MeasurementId = Convert.ToInt32(dr["FahrenheitValue"]);
+
+                    measurementList.Add(measurement);
+                }
+            }
+            con.Close();
+            return measurementList;
+        }
+    }
+
+    public class StatisticsData
+    {
+        public int StatisticsDataId { get; set; }
+        public double AverageData { get; set; }
+        public double MinData { get; set; }
+        public double MaxData { get; set; }
+
+        public StatisticsData GetStatisticsData()
+        {
+            StatisticsData statisticsData = new StatisticsData();
+            string connectionString = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+            SqlConnection con = new SqlConnection(connectionString);
+            string selectSQL = "select StatisticsDataId, AverageData, MinData, MaxData from STATISTICSDATA";
+
+            con.Open();
+            SqlCommand cmd = new SqlCommand(selectSQL, con);
+            SqlDataReader dr = cmd.ExecuteReader();
+            if (dr != null)
+            {
+                while (dr.Read())
+                {
+                    statisticsData.StatisticsDataId = Convert.ToInt32(dr["StatisticsDataId"]);
+                    statisticsData.AverageData = Convert.ToDouble(dr["AverageData"]);
+                    statisticsData.MinData = Convert.ToDouble(dr["MinData"]);
+                    statisticsData.MaxData = Convert.ToDouble(dr["MaxData"]);
+                }
+                
+            }
+            con.Close();
+            return statisticsData;
+        }
+
+    }
+}
